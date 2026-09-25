@@ -179,7 +179,7 @@ YallaJS is in the library not in your code.
  
  We strongly encourage you to follow the tutorial on how to create a contact manager application with yallajs to get a clear picture of YallaJS.
  
-### Installation And Setup
+## Installation And Setup
 
 To install this version of yallajs you can type the following in the command line
 
