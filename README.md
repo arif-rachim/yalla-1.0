@@ -1,6 +1,48 @@
-YallaJS
-=======
-*Zero Boilerplate WebApp*
+# YallaJS 1.0
+
+YallaJS is a small front-end framework from 2017 for building single-page web apps out of plain HTML files, so that a component is just markup with `{{ }}` expressions, `.bind` and `.trigger` attributes and an optional `<script>` block, without classes, decorators or JSX. It was written to remove the boilerplate that Angular, Polymer, Vue and React components need (the comparison below shows the same `name-card` component in each). The `yalla` command-line compiler (`yalla-cli.js`) watches a source folder, turns every `.html` and `.js` component into a JavaScript render function built on Google's Incremental DOM, and writes them together with a bundled `yalla.js` runtime (a Promise polyfill, Incremental DOM and the YallaJS core) into an output folder. In the browser, the runtime loads components on demand from the URL hash, so `#name-card` or `#hello/john-doe` renders and chains components, and supports properties (`$`), component state (`@`), events, content projection with named slots, loops, conditionals, asynchronous data loading and a routing guard. This repository is a snapshot of version 0.0.64, published on npm as `yallajs`, and is kept for reference; later development moved to the 2.x line.
+
+> Status: archived snapshot of YallaJS 1.0 (npm `yallajs@0.0.64`, October 2017). Not maintained.
+
+## Features
+
+- Components are plain HTML files; the file path under the source folder is the component name (folders are separated by `.`)
+- Expressions in `{{ }}` and `attribute.bind`, event handlers with `event.trigger`
+- Component properties (`$name`), `onPropertyChange`, and component state (`@name`)
+- Content projection with `<slot-view>` and named slots
+- Custom component events with `emitEvent`
+- `foreach` loops, `if.bind` conditional rendering, `$patchChanges()` to repaint
+- `data.load` for rendering the result of a promise
+- Routing from the address bar, including chained sub-components and properties in the hash
+- `yalla-routing` callback on the script tag to guard or redirect routes
+- A minimal Redux-style store in `yalla-redux.js`
+
+## Tech stack
+
+JavaScript (ES5) · Incremental DOM · Node.js CLI (chokidar, xmldom, js-beautify, minimist) · npm / Bower
+
+## Project structure
+
+```text
+yalla-cli.js      # `yalla` compiler: watches -s <src>, writes compiled components and yalla.js to -d <dist>
+yalla-core.js     # runtime: component loading, routing, properties, state, events, slots
+yalla-idom.js     # Incremental DOM (Apache-2.0, by The Incremental DOM Authors)
+yalla-promise.js  # Promise polyfill used when the browser has no native Promise
+yalla-redux.js    # small Redux-like store helpers
+index.html        # example host page
+```
+
+## Usage of the compiler
+
+```bash
+yalla -s src -d dist    # defaults: -s src, -d dist; keeps watching for changes
+yalla -h                # help
+yalla -v                # version
+```
+
+The host page loads the generated `dist/yalla.js` with `yalla-component` (the start component) and `yalla-domtarget` (the element to render into). The component base folder is the folder that contains `yalla.js`.
+
+## Framework comparison
 
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/NpRFvL6wTfU/0.jpg)](https://www.youtube.com/watch?v=NpRFvL6wTfU)
 
@@ -26,7 +68,7 @@ This is the pseudo code of your reusable component look like:
 
 Following the implementation of above component in different frameworks  :
 
-# 1. Angular
+### 1. Angular
 
 ```html
 import {Component, View} from "angular2/core";
@@ -55,7 +97,7 @@ export class NameCardClass {
 ```
 *23 lines*
 
-# 2. Polymer
+### 2. Polymer
 
 ```html
 <dom-module id="name-card">
@@ -81,7 +123,7 @@ export class NameCardClass {
 ```
 *20 lines*
 
-# 3. Vue
+### 3. Vue
 
 ```html
 Vue.component('name-card', {
@@ -101,7 +143,7 @@ Vue.component('name-card', {
 13 lines
 
 
-# 4. React
+### 4. React
 
 ```jsx
 function NameCard(props) {
@@ -119,7 +161,7 @@ function NameCard(props) {
 This is Stateless functional Component react which has just been released since version 0.14.0
 
 
-# 5. Yalla
+### 5. Yalla
 
 ```html
 <div>
@@ -139,13 +181,13 @@ YallaJS is in the library not in your code.
  
 ### Installation And Setup
 
-To install yallajs you can type the following in the command line
+To install this version of yallajs you can type the following in the command line
 
-```bat
-npm install -g yallajs
+```bash
+npm install -g yallajs@0.0.64
 ```
 
-After successful installation, you can call the compiler by typing ```yalla```
+A plain `npm install -g yallajs` now installs the later 2.x line, which is a different code base. After successful installation, you can call the compiler by typing ```yalla```
 From the command line.
  
 ## YallaJS Expression
@@ -313,7 +355,7 @@ Examples : call components that are inside a folder using ```.```
         +-- rooster-grid.html
 ```
 To display the rooster-grid in the browser we can call by typing 
-```
+```text
 http://localhost:8080/index.html#comp.rooster-grid
 ```
 
@@ -326,9 +368,9 @@ http://localhost:8080/index.html#comp.rooster-grid
              +-- another-comp.html
  
 ```
-To display the rooster-grid in the browser we can call by typing 
+To display another-comp in the browser we can call by typing 
 ```textmate
-http://localhost:8080/index.html#comp.comp-name.rooster-grid
+http://localhost:8080/index.html#comp.comp-name.another-comp
 ```
 
 ## Chaining sub-components from the browser's address bar
@@ -951,9 +993,8 @@ Inside index.html
     <head>
         <script src="yalla.js" 
             yalla-component="app"
-            yalla-base="src"
             yalla-domtarget="body"
-            yalla-routing="validateAccess"
+            yalla-routing="validateAccess"></script>
     </head>
     <body></body>
     <script>
@@ -971,3 +1012,7 @@ Inside index.html
 </html>
 ```
 
+## Limitations
+
+- `yalla-cli.js` reads its version from `../../package.json`, which only resolves when it is installed as a package under `node_modules`; running it straight from a clone of this repository fails.
+- The runtime takes the component base folder from the location of `yalla.js`; there is no separate base-folder attribute.
